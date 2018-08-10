@@ -43,6 +43,7 @@ func (pos *PoS) CalculateHash() []byte {
 // 创建Pos对象
 func NewPos(height int64, prevHash []byte, data []byte) *PoS {
 
+	pos := new(PoS)
 	// 选出挖矿节点
 
 	// 设置随机种子
@@ -50,13 +51,13 @@ func NewPos(height int64, prevHash []byte, data []byte) *PoS {
 	//[0,15)随机数
 	var rd = rand.Intn(15)
 	//选出矿工
-	node := addr[rd]
+	pos.Node = addr[rd]
 
 	//创建区块对象
-	block := &Block{height, prevHash, time.Now().Unix(), data, nil, nil}
+	pos.Block = &Block{height, prevHash, time.Now().Unix(), data, nil, nil}
 
 
-	return &PoS{block, node}
+	return &PoS{pos.Block, pos.Node}
 }
 
 func (pos *PoS) generateNextBlock() *Block {
