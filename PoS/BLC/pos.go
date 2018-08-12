@@ -43,7 +43,19 @@ func (pos *PoS) CalculateHash() []byte {
 // 创建Pos对象
 func NewPos(height int64, prevHash []byte, data []byte) *PoS {
 
-	pos := new(PoS)
+	pos := new(	PoS)
+
+	// 创建五个矿工节点
+	InitNode()
+	// 将各节点地址加入数组，模拟选择矿工的概率
+	cnt := 0
+	for i := 0; i < 5; i++ {
+		for j := 0; j < (n[i].Tokens * n[i].Days); j++ {
+			addr[cnt] = &n[i]
+			cnt++
+		}
+	}
+
 	// 选出挖矿节点
 
 	// 设置随机种子
