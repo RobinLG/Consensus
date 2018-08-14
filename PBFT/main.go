@@ -1,6 +1,12 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"net"
+	"bufio"
+	"io"
+	"strconv"
+)
 
 type Node struct {
 	Name   string
@@ -12,6 +18,7 @@ type Node struct {
 var nodes = make([]*Node, 0)
 
 func createNodes() {
+	/*
 	A := Node{"A", 1, make([]*Node, 0)}
 	B := Node{"B", 1, make([]*Node, 0)}
 	C := Node{"C", 1, make([]*Node, 0)}
@@ -20,7 +27,39 @@ func createNodes() {
 	nodes = append(nodes, &A)
 	nodes = append(nodes, &B)
 	nodes = append(nodes, &C)
-	nodes = append(nodes, &D)
+	nodes = append(nodes, &D)*/
+
+	// 监听终端
+	netListen, _ := net.Listen("tcp", "127.0.0.1:1234")
+	defer netListen.Close()
+
+	// 监听终端链接
+	for {
+		conn, _ := netListen.Accept()
+		// 创建缓冲区
+		myscan := bufio.NewScanner(conn)
+
+		io.WriteString(conn, "input name: ")
+		// 对终端的内容监听
+		go func() {
+			// 接收中的内容
+			myscan.Scan()
+			name := myscan.Text()
+			io.WriteString(conn, "input status: ")
+			myscan.Scan()
+			status := myscan.Text()
+
+			// fmt.Println(name, status)
+			// 创建新的node对象
+			sts, _ := strconv.Atoi(status)
+			node := Node{name, sts, make([]*Node, 0)}
+			// 将对象添加到数组
+			nodes = append(nodes, &node)
+
+			// 投票
+			Votes()
+		}()
+	}
 }
 
 // 互相转达
@@ -34,6 +73,7 @@ func Votes() {
 			nodes[j].Votes = append(nodes[j].Votes, nodes[i])
 		}
 	}
+	fmt.Println(isValid())
 }
 
 // 判断本次进攻是否可行，判断是否满足：全部将军 > 3*作恶将军 + 1
@@ -44,7 +84,7 @@ func isValid() bool {
 
 	cnt := 0 // 作恶将军数
 	for _, n := range votes {
-		fmt.Println(n.Status)
+		//fmt.Println(n.Status)
 		if n.Status == 0 {
 			cnt++
 		}
@@ -52,16 +92,15 @@ func isValid() bool {
 
 	// f 为作恶将军
 	// 判断是否满足：全部将军 > 3f + 1 。 若不满足则进攻成功 。
-	if len(nodes) > 3 * cnt + 1 {
-		return false
+	if len(nodes) >= 3 * cnt + 1 {
+		return true
 	}
 
-	return true
+	return false
 }
 
 func main() {
 	createNodes()
-	Votes()
-	fmt.Println(isValid())
-
+	//Votes()
+	//fmt.Println(isValid())
 }
